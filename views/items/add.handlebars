@@ -1,3 +1,9 @@
+{{#each errors}}
+    <div class="alert alert-danger">{{ text }}</div>
+{{else}}
+
+{{/each}}
+
 
 <div class="card card-body">
     <h3>To Do Item</h3>
@@ -8,7 +14,7 @@
         </div>
         <div class="form-group">
             <label for="title">Details</label>
-            <input type="text" class="form-control" name="details">
+            <input type="textarea" class="form-control" name="details">
         </div>
         <button type="submit" class="btn btn-success">Submit</button>
     </form>

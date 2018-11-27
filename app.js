@@ -8,8 +8,6 @@ const app = express()
 
 // Require body-parser (to receive post data from clients)
 const bodyParser = require('body-parser')
-// Integrate body-parser with our App
-app.use(bodyParser.urlencoded({ extended: true }))
 // Require path
 const path = require('path')
 // Setting our Static Folder Directory
@@ -27,10 +25,10 @@ mongoose.Promise = global.Promise;
 
 // CONNECT TO MONGOOSE DB
 mongoose.connect('mongodb://localhost/todo-dev', {
-  useNewUrlParser: true
+    useNewUrlParser: true
 })
-    .then(() => console.log('MongoDB Connected ... '))
-    .catch(err => console.log(err));
+.then(() => console.log('MongoDB Connected ... '))
+.catch(err => console.log(err));
 
 
 
@@ -47,6 +45,9 @@ const Todo = mongoose.model('todos');
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
+// Integrate body-parser with our App
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 // #### ROUTING #####
 
@@ -64,6 +65,37 @@ app.get('/about', (req, res) => {
 // Add Todo Item Form
 app.get('/items/add', (req, res) => {
     res.render('items/add')
+});
+
+// Process Form
+app.post('/items', (req, res) => {
+    // initial form testing
+    // console.log("Post Data: ", req.body)
+    // res.send('OK')
+
+    // INITIALIZE AN ARRAY TO HOLD ERRORS THROWN
+    let errors = [];
+
+    if(!req.body.title) {
+        errors.push({text:"Please enter a title"})
+    }
+    if(!req.body.details) {
+        errors.push({text:"Please enter item details"})
+    }
+
+    if(errors.length > 0) {
+        // redirect to the item add view
+        res.render('items/add', {
+            // pass in the errors to the template
+            errors  : errors,
+            title   : req.body.title,
+            details : req.body.details,
+        });
+    } else {
+        // successfully posted form
+        res.send('post item submitted');
+    }
+
 });
 
 
