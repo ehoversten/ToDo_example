@@ -36,7 +36,7 @@ mongoose.connect('mongodb://localhost/todo-dev', {
 
 // Load Item Model
 require('./models/Item')
-const Todo = mongoose.model('todos');
+const Item = mongoose.model('Item');
 
 
 // #### MIDDLEWARE #####
@@ -60,6 +60,17 @@ app.get('/', (req, res) => {
 // About Route
 app.get('/about', (req, res) => {
     res.render('about')
+});
+
+// TO DO ITEM LIST PAGE
+app.get('/items', (req, res) => {
+    Item.find({})
+        .sort({date:'desc'})
+        .then(items => {
+            res.render('items/index', {
+                items : items
+            });
+        });
 });
 
 // Add Todo Item Form
@@ -93,7 +104,18 @@ app.post('/items', (req, res) => {
         });
     } else {
         // successfully posted form
-        res.send('post item submitted');
+        const newItem = {
+            title   : req.body.title,
+            details : req.body.details,
+        }
+
+        new Item(newItem)
+            .save()
+            .then(item => {
+                res.redirect('/items')
+            })
+        // res.send('post item submitted');
+
     }
 
 });

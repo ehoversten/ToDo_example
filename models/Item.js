@@ -18,5 +18,5 @@ const ItemSchema = new Schema({
     }
 });
 
-mongoose.model('todos', ItemSchema);
+mongoose.model('Item', ItemSchema);
 
