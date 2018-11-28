@@ -1,6 +1,7 @@
 // Load the express module and store it in the variable express (Where do you think this comes from?)
 const express = require('express');
 const exphbs = require('express-handlebars');
+const methodOverride = require('method-override')
 const mongoose = require('mongoose')
 
 // invoke express and store the result in the variable app
@@ -8,8 +9,11 @@ const app = express()
 
 // Require body-parser (to receive post data from clients)
 const bodyParser = require('body-parser')
+
+
 // Require path
 const path = require('path')
+
 // Setting our Static Folder Directory
 app.use(express.static(path.join(__dirname, './static')))
 // Setting our Views Folder Directory
@@ -49,6 +53,11 @@ app.set('view engine', 'handlebars')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'))
+
+
+
 // #### ROUTING #####
 
 // Index Route
@@ -64,6 +73,7 @@ app.get('/about', (req, res) => {
 
 // TO DO ITEM LIST PAGE
 app.get('/items', (req, res) => {
+    // ---- Return a CONTEXT to the view --- //
     Item.find({})
         .sort({date:'desc'})
         .then(items => {
@@ -71,6 +81,20 @@ app.get('/items', (req, res) => {
                 items : items
             });
         });
+
+    // ----  Return JSON Response ----- // 
+    // Item.find( {}, (error, items) => {
+    //     if(items) {
+    //         console.log("Found: ", items)
+    //         return res.status(200).json(items);
+    //     } else {
+    //         return res.status(404).json({
+    //             "error": err,
+    //             "message": "Something went terribly terribly wrong!",
+    //         });
+    //     }
+    // });
+
 });
 
 // Add Todo Item Form
@@ -118,6 +142,35 @@ app.post('/items', (req, res) => {
 
     }
 
+});
+
+// Edit Todo Item
+app.get('/items/edit/:id', (req, res) => {
+    Item.findOne({
+        _id: req.params.id 
+    })
+    .then(item => {
+        res.render('items/edit', {
+            item : item
+        });
+    });
+});
+
+// Process Edit Form
+app.put('/items/:id', (req, res) => {
+    Item.findOne({
+        _id: req.params.id
+    })
+    .then(item => {
+        // Update values
+        item.title   = req.body.title;
+        item.details = req.body.details;
+
+        item.save()
+            .then(item => {
+                res.redirect('/items')
+            })
+    });
 });
 
 
