@@ -4,8 +4,11 @@
     <div class="card card-body mb-2">
         <h4>{{title}}</h4>
         <p>{{details}}</p>
-        <a href="/items/edit/{{id}}" class="btn btn-dark btn-block">Edit</a>
-        
+        <a href="/items/edit/{{id}}" class="btn btn-dark btn-block mb-2">Edit</a>
+        <form action="/items/{{id}}?_method=DELETE" method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn btn-danger btn-block" value="Delete">
+        </form>
     </div>
 {{else}}
     <p>No Items listed</p>

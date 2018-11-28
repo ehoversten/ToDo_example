@@ -173,6 +173,14 @@ app.put('/items/:id', (req, res) => {
     });
 });
 
+// Delete ITEM
+app.delete('/items/:id', (req, res) => {
+    Item.deleteOne({_id: req.params.id})
+        .then(() => {
+            res.redirect('/items')
+        });
+});
+
 
 
 
