@@ -14,9 +14,11 @@
     {{!-- NAVBAR --}}
     {{> _navbar }}
 
-
     {{!-- BODY --}}
     <div class="container">
+        {{!-- FLASH MESSAGES --}}
+        {{> _msg }}
+        
         {{{ body }}}
     </div>
 

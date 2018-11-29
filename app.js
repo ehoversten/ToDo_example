@@ -1,18 +1,20 @@
 // Load the express module and store it in the variable express (Where do you think this comes from?)
 const express = require('express');
+const session = require('express-session');
+const flash = require('connect-flash');
 const exphbs = require('express-handlebars');
-const methodOverride = require('method-override')
-const mongoose = require('mongoose')
+const methodOverride = require('method-override');
+const mongoose = require('mongoose');
 
 // invoke express and store the result in the variable app
 const app = express()
 
 // Require body-parser (to receive post data from clients)
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 
 
 // Require path
-const path = require('path')
+const path = require('path');
 
 // Setting our Static Folder Directory
 app.use(express.static(path.join(__dirname, './static')))
@@ -21,11 +23,10 @@ app.set('views', path.join(__dirname, './views'))
 
 
 
+// #### DATABASE CONNECTION #####
 
 // Map global promise - get rid of warning
 mongoose.Promise = global.Promise;
-
-// #### DATABASE CONNECTION #####
 
 // CONNECT TO MONGOOSE DB
 mongoose.connect('mongodb://localhost/todo-dev', {
@@ -56,7 +57,27 @@ app.use(bodyParser.json())
 // override with POST having ?_method=DELETE
 app.use(methodOverride('_method'))
 
+// EXPRESS - SESSION
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true,
+    // cookie: { secure: true }
+}));
 
+
+// CONNECT-FLASH (MESSAGES)
+app.use(flash());
+
+
+// #### GLOBAL VARIABLES ####
+app.use(function(req, res, next) {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+
+});
 
 // #### ROUTING #####
 
@@ -136,12 +157,10 @@ app.post('/items', (req, res) => {
         new Item(newItem)
             .save()
             .then(item => {
+                req.flash('success_msg', 'New To-Do item added!')
                 res.redirect('/items')
             })
-        // res.send('post item submitted');
-
     }
-
 });
 
 // Edit Todo Item
@@ -168,6 +187,7 @@ app.put('/items/:id', (req, res) => {
 
         item.save()
             .then(item => {
+                req.flash('success_msg', 'Item has been updated!')
                 res.redirect('/items')
             })
     });
@@ -177,6 +197,7 @@ app.put('/items/:id', (req, res) => {
 app.delete('/items/:id', (req, res) => {
     Item.deleteOne({_id: req.params.id})
         .then(() => {
+            req.flash('success_msg', "Item has been removed");
             res.redirect('/items')
         });
 });
